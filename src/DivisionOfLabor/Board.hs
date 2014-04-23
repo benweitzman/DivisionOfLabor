@@ -1,29 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-{-
- _   _   _   _   _
-/0\_/2\_/4\_/ \_/ \
-\0/1\0/3\0/x\_/ \_/
-/0\0/2\0/4\y/ \_/ \
-\1/1\1/3\1/ \_/ \_/
-/0\1/2\1/ \_/ \_/ \
-\2/ \2/ \_/ \_/ \_/
-
-        
-(1,0)(2,0)(3,0)
-    \  |  /
-     (2,1)
-    /  |  \
-(1,1)(2,2)(3,1)
-
-(x-1,y-1)(x,y-1)(x+1,y-1)
-        \   |   /
-          (x,y)
-        /   |   \
-(x-1,y)  (x,y+1)(x+1,y)
-
--}
-
 module DivisionOfLabor.Board where
 
 import Data.Map ((!))
@@ -92,10 +68,10 @@ uniformMap dims = M.fromList $ zip (enumTuple (0,0) dims) (repeat A)
 
 adjacentLocations :: BoardLocation -> GameBoard -> [BoardLocation]
 adjacentLocations (x, y) board = filter (flip M.member board) 
-                                        [(x - 1, y - 1) -- northwest
-                                        ,(x, y - 1) -- north
-                                        ,(x + 1, y - 1) --  northeast
-                                        ,(x - 1, y) -- southwest
-                                        ,(x, y + 1) -- south
-                                        ,(x + 1, y) -- southeast
+                                        [(x, y - 1) -- northwest
+                                        ,(x + 1, y - 1) -- northeast
+                                        ,(x + 1, y) -- east
+                                        ,(x, y + 1) -- southeast
+                                        ,(x - 1, y + 1) -- southwest
+                                        ,(x - 1, y) -- west
                                         ]
