@@ -39,4 +39,5 @@ library
                        DivisionOfLabor.Player,
                        DivisionOfLabor.Board,
                        DivisionOfLabor.Worker,
-                       DivisionOfLabor.Resource
+                       DivisionOfLabor.Resource,
+                       Data.HexGrid

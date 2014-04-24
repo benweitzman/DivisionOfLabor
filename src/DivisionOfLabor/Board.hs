@@ -6,16 +6,18 @@ import Data.Map ((!))
 import qualified Data.Map as M
 import Data.Map (Map)    
 import qualified Data.Traversable as T
+import Data.HexGrid hiding (fromList)
+import qualified Data.HexGrid as HG
 
 import Control.Monad.Random
 import Control.Monad.State
 import Control.Arrow
 
-type BoardLocation = (Int, Int) 
+type BoardLocation = HexLocation
 
-type GameMap = Map BoardLocation TerrainGroup
+type GameMap = HexGrid TerrainGroup
 
-type GameBoard = Map BoardLocation BoardSpace
+type GameBoard = HexGrid BoardSpace
 
 data BoardSpace = BoardSpace
     { terrain :: Terrain
@@ -34,9 +36,6 @@ data Terrain = Plains
              | Mountains
              | Desert
              deriving (Eq, Ord, Show)
-
-enumTuple :: (Enum a, Enum b) => (a, b) -> (a, b) -> [(a, b)]
-enumTuple (a, b) (c, d) = [(x, y) | x <- [a..c], y <- [b..d]]
 
 type TileDistribution = Map TerrainGroup (Map Terrain Int)
 
@@ -64,14 +63,4 @@ defaultDistribution = M.fromList [(A, tenEach)]
     where tenEach = M.fromList [(Plains, 10), (Hills, 10), (Mountains, 10), (Desert, 10)]
 
 uniformMap :: (Int, Int) -> GameMap
-uniformMap dims = M.fromList $ zip (enumTuple (0,0) dims) (repeat A)
-
-adjacentLocations :: BoardLocation -> GameBoard -> [BoardLocation]
-adjacentLocations (x, y) board = filter (flip M.member board) 
-                                        [(x, y - 1) -- northwest
-                                        ,(x + 1, y - 1) -- northeast
-                                        ,(x + 1, y) -- east
-                                        ,(x, y + 1) -- southeast
-                                        ,(x - 1, y + 1) -- southwest
-                                        ,(x - 1, y) -- west
-                                        ]
+uniformMap (width, height) = parallelogram width height (const A)
