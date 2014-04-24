@@ -143,10 +143,17 @@ update2 = foldl update2'
   characters per row, respectively
 -}
 
-prettyPrint :: (a -> CharGrid) -> HexGrid a -> String                                              
+makeFill :: (a -> String) -> a -> [((Int, Int), Char)]
+makeFill f x = concat updateRows
+    where updateRows = map (\((takeN, dropN), rowNum) -> take takeN . drop dropN . zipWith (\x (y, c) -> ((y, x), c)) [0..] . map (\c -> (rowNum, c)) $ rows !! rowNum)
+                           (zip rowData [0..])
+          rows = lines $ f x
+          rowData = [(1, 4), (5, 2), (7, 1), (7, 1), (5, 2), (1, 4)]
+
+prettyPrint :: (a -> String) -> HexGrid a -> String                                              
 prettyPrint f g@(HexGrid grid) = toString $ M.foldWithKey printHex blankCharGrid grid
     where printHex :: HexLocation -> a -> CharGrid -> CharGrid
-          printHex p _ c = c `update2` [((hexY,hexX+3), '/')
+          printHex p _ c = c `update2` ([((hexY,hexX+3), '/')
                                        ,((hexY,hexX+5), '\\')
                                        ,((hexY+1,hexX+1), '/')
                                        ,((hexY+1,hexX+7), '\\')
@@ -158,7 +165,7 @@ prettyPrint f g@(HexGrid grid) = toString $ M.foldWithKey printHex blankCharGrid
                                        ,((hexY+4,hexX+7), '/')
                                        ,((hexY+5,hexX+3), '\\')
                                        ,((hexY+5,hexX+5), '/')
-                                       ]
+                                       ] ++ map (\((y, x), c) -> ((y+hexY, x+hexX), c)) (makeFill f (grid ! p)))
             where (hexX, hexY) = toXY p
           blankCharGrid :: CharGrid
           blankCharGrid = V.replicate gridHeight (V.replicate gridWidth ' ')

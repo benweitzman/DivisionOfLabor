@@ -64,3 +64,32 @@ defaultDistribution = M.fromList [(A, tenEach)]
 
 uniformMap :: (Int, Int) -> GameMap
 uniformMap (width, height) = parallelogram width height (const A)
+
+printBoard :: GameBoard -> String
+printBoard board = prettyPrint printTile board
+
+replace :: Char -> String -> String -> String
+replace _ [] zs = zs
+replace _ _ [] = []
+replace c (x:xs) (z:zs) 
+    | z == c = x:replace c xs zs
+    | otherwise = z:replace c (x:xs) zs
+
+fillWith :: Char -> String
+fillWith c = replace '.' (repeat c) $
+    "   / \\    \n" ++
+    " / ... \\  \n" ++
+    "| .***. |  \n" ++
+    "| .***. |  \n" ++
+   " \\ ... /   \n" ++
+   "   \\ /     \n"
+
+addInfo :: String -> String -> String
+addInfo = replace '*'
+
+printTile :: BoardSpace -> String
+printTile BoardSpace{discovered=False, terrainGroup=x} = addInfo (" " ++ show x ++ "    ") $ fillWith '?'
+printTile BoardSpace{terrain=Plains} = addInfo ("      ") $ fillWith '.'
+printTile BoardSpace{terrain=Hills} = addInfo ("      ") $ fillWith '~'
+printTile BoardSpace{terrain=Mountains} = addInfo ("      ") $ fillWith '^'
+printTile BoardSpace{terrain=Desert} = addInfo ("      ") $fillWith 'x'
