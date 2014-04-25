@@ -28,7 +28,7 @@ executable DivisionOfLabor
                        text ==0.11.*
 
 
-  hs-source-dirs:      Division-cmdline
+  hs-source-dirs:      src/DivisionOfLabor-cli
   default-language:    Haskell2010
 
 library
@@ -39,7 +39,7 @@ library
                        monad-logger,
                        mtl ==2.1.*
 
-  hs-source-dirs:      src
+  hs-source-dirs:      src/lib
   default-language:    Haskell2010
   exposed-modules:     DivisionOfLabor.Game,
                        DivisionOfLabor.Player,
