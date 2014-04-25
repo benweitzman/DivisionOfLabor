@@ -29,7 +29,7 @@ type HexTileData = ( Char -- character to use to fill the tile
 
 data HexGridWidget a = HexGridWidget { hexGrid :: HexGrid a
                                      , selectedLocation :: HexLocation
-                                     , tileData :: a -> HexTileData 
+                                     , tileData :: a -> HexTileData
                                      }
 
 instance (Show a) => Show (HexGridWidget a) where
@@ -63,7 +63,7 @@ newHexGrid g tileRender = do
 
 renderHexGrid :: Bool -> HexGridWidget a -> DisplayRegion -> RenderContext -> IO Image
 renderHexGrid foc grid s ctx = do
-    let gridString = prettyPrint undefined (hexGrid grid) (selectedLocation grid)
+    let gridString = prettyPrint (tileData grid) (hexGrid grid) (selectedLocation grid)
         rows = lines gridString
         displayStringRows = map (\x -> S.fromList $ map (\c -> (c, 1)) x) rows
         width = fromIntegral $ S.length (displayStringRows !! 0)
@@ -118,10 +118,9 @@ update2' grid ((y, x), c) = grid V.// [(y, grid V.! y V.// [(x, c)])]
 update2 :: CharGrid -> [((Int, Int), Char)]  -> CharGrid
 update2 = foldl update2'
 
-prettyPrint :: (a -> String) -> HexGrid a -> HexLocation -> String                                              
+prettyPrint :: (a -> HexTileData) -> HexGrid a -> HexLocation -> String
 prettyPrint f grid selected = toString $ M.foldWithKey printHex blankCharGrid grid
-    where printHex :: HexLocation -> a -> CharGrid -> CharGrid
-          printHex p _ c = c `update2` ([((hexY,hexX+3), '/')
+    where printHex p l c = c `update2` ([((hexY,hexX+3), '/')
                                        ,((hexY,hexX+5), '\\')
                                        ,((hexY+1,hexX+1), '/')
                                        ,((hexY+1,hexX+7), '\\')
@@ -133,9 +132,9 @@ prettyPrint f grid selected = toString $ M.foldWithKey printHex blankCharGrid gr
                                        ,((hexY+4,hexX+7), '/')
                                        ,((hexY+5,hexX+3), '\\')
                                        ,((hexY+5,hexX+5), '/')
-                                       ] ++ selectedUpdates) -- ++ map (\((y, x), c) -> ((y+hexY, x+hexX), c)) (makeFill f (grid ! p)))
+                                       ] ++ selectedUpdates ++ tileTypeUpdates ++ tileInfoUpdates)
             where (hexX, hexY) = toXY p
-                  selectedUpdates = if p == selected 
+                  selectedUpdates = if p == selected
                                     then [((hexY, hexX+4), '*')
                                          ,((hexY+1,hexX+2), '*')
                                          ,((hexY+1,hexX+6), '*')
@@ -146,8 +145,24 @@ prettyPrint f grid selected = toString $ M.foldWithKey printHex blankCharGrid gr
                                          ,((hexY+4,hexX+2), '*')
                                          ,((hexY+4,hexX+6), '*')
                                          ,((hexY+5,hexX+4), '*')
-                                         ] 
+                                         ]
                                     else []
+                  tileTypeUpdates = [((hexY+1, hexX+3), tileType)
+                                    ,((hexY+1, hexX+4), tileType)
+                                    ,((hexY+1, hexX+5), tileType)
+                                    ,((hexY+2, hexX+2), tileType)
+                                    ,((hexY+2, hexX+6), tileType)
+                                    ,((hexY+3, hexX+2), tileType)
+                                    ,((hexY+3, hexX+6), tileType)
+                                    ,((hexY+4, hexX+3), tileType)
+                                    ,((hexY+4, hexX+4), tileType)
+                                    ,((hexY+4, hexX+5), tileType)
+                                    ]
+                  tileInfoUpdates = zipWith (\c i -> ((hexY+2,hexX+2+i), c)) row1 [1,2,3] ++
+                                    zipWith (\c i -> ((hexY+2,hexX+2+i), c)) row1 [1,2,3]
+
+                  (tileType, (row1, row2)) = f l
+
           blankCharGrid :: CharGrid
           blankCharGrid = V.replicate gridHeight (V.replicate gridWidth ' ')
           gridHeight = maxY - minY + hexHeight
@@ -162,47 +177,4 @@ prettyPrint f grid selected = toString $ M.foldWithKey printHex blankCharGrid gr
           rMin = minR grid
           toString :: CharGrid -> String
           toString = concat . V.toList . V.map (\x -> V.toList x ++ "\n")
-
-{-
-
-
-
-  The 'prettyPrint' function will print a hex grid
-  using a supplied function to generate the inside of each
-  hexagon
-
-  The real estate that the supplied function has to work with
-  is as shown:
-
-@
-
-|---9---|  ---
-   \/*\\      |
- \/*****\\    |
-|*******|   6
-|*******|   |
- \\*****\/    |
-   \\*\/     _|_
-@
-
-  That's
-
-@
-  1
-  5
-  7
-  7
-  5
-  1
-@
-
-  characters per row, respectively
-
-makeFill :: (a -> String) -> a -> [((Int, Int), Char)]
-makeFill f x = concat updateRows
-    where updateRows = map (\((takeN, dropN), rowNum) -> take takeN . drop dropN . zipWith (\x (y, c) -> ((y, x), c)) [0..] . map (\c -> (rowNum, c)) $ rows !! rowNum)
-                           (zip rowData [0..])
-          rows = lines $ f x
-          rowData = [(1, 4), (5, 2), (7, 1), (7, 1), (5, 2), (1, 4)]
-
--}
+        

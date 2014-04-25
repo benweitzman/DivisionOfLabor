@@ -35,7 +35,7 @@ hexagonal grids, specifically pointy topped hexagons
 module Data.HexGrid
     ( HexGrid
     , HexLocation
-    , parallelogram 
+    , parallelogram
     , adjacentLocations
     , ofLocation
     , Direction (..)
@@ -111,4 +111,3 @@ maxR = maxBy (comparing snd)
 
 minR :: HexGrid a -> HexLocation
 minR = minBy (comparing snd)
-

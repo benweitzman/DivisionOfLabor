@@ -5,6 +5,7 @@ module Main where
 import DivisionOfLabor.Game
 import DivisionOfLabor.Player
 import DivisionOfLabor.Board
+import DivisionOfLabor.Graphics
 
 import Graphics.Vty hiding (pad)
 import Graphics.Vty.Widgets.All
@@ -18,7 +19,7 @@ import System.Exit ( exitSuccess )
 main = do
     gameState <- mkGameState [mkPlayer "Ben" Explorer, mkPlayer "Alex" Farmer, mkPlayer "Charles" Manufacturer] (uniformMap (5, 5))
 
-    mapWidget <- newHexGrid (board gameState) undefined
+    mapWidget <- newHexGrid (board gameState) tilePrinter
     playersWidget <- newTextList (bgColor blue)$ map (T.pack . name) (getPlayers gameState)
     mainBox <- hBox mapWidget playersWidget >>= withBoxSpacing 1
     ui <- centered =<< hLimit 120 mainBox
