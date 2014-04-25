@@ -6,9 +6,19 @@ import DivisionOfLabor.Board
 import DivisionOfLabor.Resource
 
 data Worker = Worker
-    { location :: BoardLocation
-    , cargo :: Vector (Resource, Int)
+    { location :: Maybe BoardLocation
+    , cargo :: Vector (Maybe (Resource, Int))
     , upgrades :: [Upgrade]
+    , speed :: Int
     } deriving (Eq, Show)
 
 type Upgrade = Int
+
+scout :: Worker
+scout = undefined
+
+settler :: Worker
+settler = undefined
+
+standard :: Worker
+standard = undefined

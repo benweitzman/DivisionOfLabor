@@ -26,11 +26,13 @@ newtype TransStackT e s m a = DivisionOfLabor { runDivision :: ErrorT e (StateT 
 
 type DivisonOfLabor a = forall m . TransStackT String GameState m a
 
-
-mkGameState :: [(PlayerId -> Player)] -> GameMap -> IO (GameState)
+mkGameState :: [(PlayerId -> Player)] -> GameMap -> IO GameState
 mkGameState playerFs map = do b <- evalRandIO (mkBoard map defaultDistribution)
                               return GameState { players = M.fromList $ mkPlayers playerFs
                                                , board = b
                                                , roundNum = 0
                                                }
     where mkPlayers = zipWith (\x f -> (x, f x)) [0..]
+
+getPlayers :: GameState -> [Player]
+getPlayers = M.elems . players
