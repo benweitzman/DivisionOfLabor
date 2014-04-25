@@ -65,6 +65,8 @@ defaultDistribution = M.fromList [(A, tenEach)]
 uniformMap :: (Int, Int) -> GameMap
 uniformMap (width, height) = parallelogram width height (const A)
 
+{-
+
 printBoard :: GameBoard -> String
 printBoard board = prettyPrint printTile board
 
@@ -93,3 +95,5 @@ printTile BoardSpace{terrain=Plains} = addInfo ("      ") $ fillWith '.'
 printTile BoardSpace{terrain=Hills} = addInfo ("      ") $ fillWith '~'
 printTile BoardSpace{terrain=Mountains} = addInfo ("      ") $ fillWith '^'
 printTile BoardSpace{terrain=Desert} = addInfo ("      ") $fillWith 'x'
+
+-}
